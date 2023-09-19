@@ -2,35 +2,24 @@
 
 namespace App\Http\Controllers\Api\v1\Auth;
 
+use App\Enums\User\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\StoreUserRequest;
-use App\Http\Requests\User\Auth\StoreNewUserRequest;
 use App\Http\Resources\User\UserResource;
-use App\Jobs\ActiveCampaign\SyncUserToActiveCampaign;
-use App\Models\Invite;
 use App\Models\User;
-use App\Services\Auth\TaskService;
-use App\Services\User\UserService;
-use App\Traits\Response\CustomResponse;
-use Illuminate\Auth\Access\AuthorizationException;
+use App\Services\Auth\AuthService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Coderello\SocialGrant\Resolvers\SocialUserResolverInterface;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Two\User as ProviderUser;
-use Stevebauman\Location\Facades\Location;
 
 
 class RegisterController extends Controller
 {
 
-    public function __construct(public Application $app, protected TaskService $service)
+    public function __construct(public Application $app, protected AuthService $service)
     {
         //
     }
@@ -45,19 +34,11 @@ class RegisterController extends Controller
         try{
             $user = User::create($request->validated());
 
-            $token = $user->createToken('access_token')->accessToken;
-
-            Auth::login($user);
-
             event(new Registered($user));
-
-            $response['user'] = new UserResource($user);
-            $response['token'] = $token;
 
             return response()->json([
                 "status" => true,
                 "message" => "User registration successful",
-                "data" => $response
             ]);
         }catch(\Throwable $error){
             return $this->serverErrorResponse('User Registration Failed, Please try again later');
@@ -79,7 +60,7 @@ class RegisterController extends Controller
             if ($user->markEmailAsVerified())
                 event(new Verified($user));
 
-            $user->update(["status" => "active"]);
+            $user->update(["status" => UserStatus::ACTIVE()]);
 
             return response()->json([
                 "status" => true,
@@ -87,10 +68,8 @@ class RegisterController extends Controller
             ]);
 
         }catch(\Throwable $error){
-            return response()->json([
-                "status" => true,
-                "message" => "Unable to verify email"
-            ], 500);
+            logger($error);
+            return $this->serverErrorResponse('Unable to verify email');
         }
     }
 
@@ -105,10 +84,7 @@ class RegisterController extends Controller
             ]);
 
         }catch (\Throwable $error){
-            return response()->json([
-                "status" => false,
-                "message" => "Cannot resend verification email now. Try again",
-            ], 500);
+            return $this->serverErrorResponse('Cannot resend verification email now. Try again');
         }
     }
 }

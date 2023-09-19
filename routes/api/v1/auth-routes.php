@@ -20,8 +20,6 @@ Route::group([],function () {
 
     Route::post('/login', [LoginController::class, 'login'])->name('login');
 
-    Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-
     Route::post('/register', [RegisterController::class, 'store'])->name('register');
 
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetPassword'])->name('password.forgot');
@@ -35,13 +33,16 @@ Route::group([],function () {
 
 
     // Auth checks
-    Route::group(['middleware' => ['auth:api']], function(){
+    Route::group(['middleware' => ['auth:sanctum']], function(){
 
         Route::post('/email/verification-notification', [RegisterController::class, 'resendVerification'])
             ->middleware(['throttle:6,1'])->name('verification.send');
 
         Route::get('/authenticated', [LoginController::class, 'isLoggedIn'])
             ->name('login.confirm');
+
+        Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
     });
 }
 );

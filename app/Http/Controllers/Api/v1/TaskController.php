@@ -12,7 +12,6 @@ use App\Services\Task\TaskService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
@@ -28,13 +27,13 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $account = auth()->user()->tasks()
+        $tasks = auth()->user()->tasks()
             ->paginate(sanitize_request_page_size(request('paginate')));
 
         return response()->json([
             "status" => true,
             "message" => "Tasks retrieved",
-            "data" => new TaskCollection($account)
+            "data" => new TaskCollection($tasks)
         ]);
     }
 
@@ -48,22 +47,19 @@ class TaskController extends Controller
     {
         $data = $request->validated();
 
-        $data['slug'] = Str::slug($request->safe()->name . Str::random(6));
-
         try {
             $task = DB::transaction(function() use ($data){
-                return TaskService::create(auth()->user(), $data);
+                return $this->service->create(auth()->user(), $data);
             });
-
 
             return response()->json([
                 "status" => true,
                 "message" => "Tasks created",
                 "data" => new TaskResource($task)
-            ]);
+            ], 201);
 
         } catch (\Throwable $error) {
-            return $this->serverErrorResponse('Error Occurred while creating resource');
+            return $this->serverErrorResponse('Error Occurred while creating task');
         }
     }
 
@@ -77,7 +73,7 @@ class TaskController extends Controller
     {
         return response()->json([
             "status" => true,
-            "message" => "Tasks created",
+            "message" => "Task retrieved",
             "data" => new TaskResource($task)
         ]);
     }
@@ -94,8 +90,7 @@ class TaskController extends Controller
         $data = $request->validated();
 
         try {
-
-            $task = TaskService::update($task, $data);
+            $this->service->update($task, $data);
 
             return response()->json([
                 "status" => true,
@@ -104,7 +99,7 @@ class TaskController extends Controller
             ]);
 
         } catch (\Throwable $error) {
-            return $this->serverErrorResponse('Error Occurred while updating resource');
+            return $this->serverErrorResponse('Error Occurred while updating task');
         }
     }
 

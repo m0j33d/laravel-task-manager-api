@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\Auth\LoginRequest;
-use App\Services\Auth\TaskService;
-use Illuminate\Auth\AuthenticationException;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Services\Auth\AuthService;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
 
-    public function __construct(protected TaskService $service)
+    public function __construct(protected AuthService $service)
     {
         //
     }
@@ -21,7 +20,7 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
-        $token = $user->createToken('access_token')->accessToken;
+        $token = $user->createToken('access_token')->plainTextToken;
 
         return response()->json([
             "status" => true,
@@ -32,28 +31,19 @@ class LoginController extends Controller
 
     public function isLoggedIn()
     {
-        if (Auth::guard('api')->check()) {
-            return response()->json([
-                "status" => true
-            ]);
-        }
-
-        throw new AuthenticationException('User Not Authenticated');
+        return response()->json([
+            "status" => true
+        ]);
     }
 
     public function logout()
     {
-        if (Auth::guard('api')->check()) {
-            Auth::user()->AauthAcessToken()->delete();
-            return response()->json([
-                "status" => true,
-                "message" => "Logout successful"
-            ]);
-        }
+        request()->user()->currentAccessToken()->delete();
 
         return response()->json([
-            "status" => false,
-            "message" => "User was not logged in"
-        ],403);
+            "status" => true,
+            "message" => "Logout successful"
+        ]);
+
     }
 }
