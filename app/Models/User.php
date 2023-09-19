@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -60,7 +61,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $searchables = [
         'first_name', 'last_name', 'email'
     ];
-
 
     /**
      * Get all accounts that user belongs to

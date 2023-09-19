@@ -13,7 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->uuid()->primary();
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('slug');
             $table->string('title');
             $table->longText('description')->nullable();
             $table->boolean('completed')->default(false);

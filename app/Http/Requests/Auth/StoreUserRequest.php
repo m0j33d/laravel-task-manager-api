@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\Traits\Validation\FailedValidationResponse;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
@@ -47,4 +48,12 @@ class StoreUserRequest extends FormRequest
             'email.unique' => 'Email already exists'
         ];
     }
+
+    public function validated($key = null, $default = null)
+    {
+        $validated = parent::validated($key = null, $default = null);
+
+        return array_merge($validated,  ['password' => Hash::make($this->input('password'))]);
+    }
+
 }

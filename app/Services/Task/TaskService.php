@@ -18,7 +18,7 @@ class TaskService
      */
     public function create(?User $user, $data): Task
     {
-        return $user->task()->create($data);
+        return $user->tasks()->create($data);
     }
 
     /**
@@ -29,7 +29,7 @@ class TaskService
      *
      * @return \App\Model\Task
      */
-    public static function update(Task $task, $data): Task
+    public static function update(Task $task, $data): bool
     {
         return $task->update($data);
     }

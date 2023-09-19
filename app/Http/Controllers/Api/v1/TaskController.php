@@ -52,7 +52,6 @@ class TaskController extends Controller
                 return $this->service->create(auth()->user(), $data);
             });
 
-
             return response()->json([
                 "status" => true,
                 "message" => "Tasks created",
@@ -91,7 +90,7 @@ class TaskController extends Controller
         $data = $request->validated();
 
         try {
-            $task = $this->service->update($task, $data);
+            $this->service->update($task, $data);
 
             return response()->json([
                 "status" => true,

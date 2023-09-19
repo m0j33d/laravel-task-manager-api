@@ -24,7 +24,7 @@ class StoreTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255', 'unique:tasks,title,NULL,id,user_id,' . auth()->id()],
             'description' => ['required', 'string'],
             'category' => ['sometimes', 'exists:categories,id']
         ];

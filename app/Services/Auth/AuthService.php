@@ -2,7 +2,9 @@
 
 namespace App\Services\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -19,17 +21,19 @@ class AuthService
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate($request, $guard = 'web')
+    public function authenticate($request)
     {
         self::ensureIsNotRateLimited($request);
 
-        if(!Auth::guard($guard)->attempt($request->only(['email', 'password']), $request->boolean('remember'))){
-            RateLimiter::hit(self::throttleKey($request));
+        $user = User::whereEmail($request['email'])->first();
 
+        if (!Hash::check($request['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
+
+        Auth::login($user);
 
         RateLimiter::clear(self::throttleKey($request));
     }

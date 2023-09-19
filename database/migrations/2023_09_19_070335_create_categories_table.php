@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+//            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('name');
             $table->unsignedBigInteger('status')->default(CategoryStatus::ACTIVE());
             $table->timestamps();

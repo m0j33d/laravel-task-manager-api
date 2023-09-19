@@ -27,9 +27,14 @@ Route::group([], function () {
     |
     */
 
-    Route::group(['middleware' => 'verified'], function () {
+    Route::group(['middleware' => 'auth:sanctum'], function () {
 
-        Route::apiResource('/tasks', TaskController::class);
+        Route::group(['middleware' => 'verified'], function () {
+
+            Route::apiResource('/tasks', TaskController::class);
+            Route::delete('/tasks/{task}/force', [TaskController::class, 'deletePermanently'])->name('task.force.delete');
+
+        });
 
     });
 

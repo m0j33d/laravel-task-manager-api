@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\User\Auth;
+namespace App\Http\Requests\Auth;
 
 
 use App\Traits\Validation\FailedValidationResponse;
