@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\User\UserStatus;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -50,6 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'status' => UserStatus::class
     ];
 
     /**
@@ -59,9 +61,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name', 'last_name', 'email'
     ];
 
-    protected $with = [
-        'media'
-    ];
 
     /**
      * Get all accounts that user belongs to
@@ -69,17 +68,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
-    }
-
-    /**
-     * Send a password reset notification to the user.
-     *
-     * @param  string  $token
-     */
-    public function sendPasswordResetNotification($token): void
-    {
-        $url = config('app.frontend_url') . "/password-reset/$token?". http_build_query(["email" => $this->email]);
-        $this->notify((new ResetPasswordNotification($url))->delay(now()->addSeconds(5)));
     }
 
     /**

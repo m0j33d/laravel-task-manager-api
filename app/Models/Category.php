@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use App\Enums\Task\TaskStatus;
+use App\Enums\Category\CategoryStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Task extends Model
+class Category extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -26,16 +25,11 @@ class Task extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'status' => TaskStatus::class,
+        'status' => CategoryStatus::class,
     ];
 
-    public function user(): BelongsTo
+    public function tasks(): HasMany
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function category(): HasOne
-    {
-        return $this->hasOne(Category::class);
+        return $this->hasMany(Task::class);
     }
 }
