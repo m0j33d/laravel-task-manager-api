@@ -56,7 +56,7 @@ class TaskController extends Controller
                 "status" => true,
                 "message" => "Tasks created",
                 "data" => new TaskResource($task)
-            ]);
+            ], 201);
 
         } catch (\Throwable $error) {
             return $this->serverErrorResponse('Error Occurred while creating task');

@@ -41,7 +41,6 @@ class RegisterController extends Controller
                 "message" => "User registration successful",
             ]);
         }catch(\Throwable $error){
-            logger($error);
             return $this->serverErrorResponse('User Registration Failed, Please try again later');
         }
     }
